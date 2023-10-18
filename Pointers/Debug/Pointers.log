@@ -1,2 +1,2 @@
 ﻿  Source.cpp
-  Pointers.vcxproj -> C:\Users\esher\OneDrive\Desktop\Desktop\Git Repos and Code\cpp-directX-series-2\Pointers\Debug\Pointers.exe
+C:\Users\esher\OneDrive\Desktop\Desktop\Git Repos and Code\cpp-directX-series-2\Pointers\Source.cpp(5,13): error C3861: '_khbit': identifier not found

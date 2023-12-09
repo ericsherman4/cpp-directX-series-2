@@ -81,32 +81,26 @@ namespace sherm {
 
 int main()
 {
-	std::ifstream in("TextFile1.txt");
-	if (!in)
-	{
-		sherm::print("\n failed to open file");
-		while (!_kbhit());
+
+	std::ifstream warp_file("warp.txt");
+	constexpr int file_size = 3359405 + 1; // when you read in this file, new lines will be translated from two characters to one if you remember
+											// so the file will be shorter. but also add an extra byte for new line character in case there is no newlines in the file
+	char *warp_string =  new char[file_size];
+	if (!warp_string)
 		return -1;
-	}
 
-	// This is such a fun and interesting for loop.
-	for (char c = in.get(); in.good(); c = in.get())
+	int i = 0;
+	for (char c = warp_file.get(); warp_file.good(); c = warp_file.get())
 	{
-		_putch(c);
+		warp_string[i++] = c;
 	}
+	warp_string[i++] = 0; // null terminator
 
-	if (in.bad())
-	{
-		sherm::print("\n we fucked up.");
-	}
-	else if (in.eof())
-	{
-		sherm::print("\n succesfully reach eof");
-	}
-	else
-	{
-		sherm::print("\n some kind of fail?");
-	}
+	char buffer[256];
+	sherm::int2str(i, buffer, sizeof(buffer));
+	sherm::print(buffer);
+
+	delete [] warp_string;
 
 	while (!_kbhit());
 	return 0;

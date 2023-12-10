@@ -1,12 +1,16 @@
-#include "iostream"
+#include <iostream>
+#include <vector>
 
 int main()
 {
-    std::cout.put('F');
 
-    std:: cout << "uckers!";
-    std::cout << 69;
+    std::cout << "how many";
+    int size;
+    std::cin >> size;
+    std::vector<int> vec1(size);
 
-    std::cin.get();
+
+
+
     return 0;
 }

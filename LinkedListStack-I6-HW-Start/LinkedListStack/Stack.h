@@ -15,13 +15,14 @@ public:
 
 private:
 	int size;
-	class Node* start;
+	class Node* top;
 };
 
 class Node
 {
 public:
 	Node(int val_in);
+	Node(int val_in, Node* next_in);
 	~Node();
 	Node(const Node& other);
 	Node& operator=(const Node& other);

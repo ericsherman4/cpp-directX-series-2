@@ -15,32 +15,27 @@ Node::Node(int val_in, Node* next_in)
 
 Node::~Node()
 {
-    if (next != nullptr)
+    // should never call delete on a node that has a null next pointer right/
+    delete next;
+    next = nullptr;
+}
+
+Node::Node(const Node& other)
+    : val{other.val}
+    , next{nullptr}
+{
+    if (other.next != nullptr)
     {
-        delete next;
-        next = nullptr;
+        // This should recursively copy every node.
+        next = new Node(*other.next);
     }
 }
 
-Node::Node(const Node& other) //this never gets called
+Node* Node::DisconnectNode(void)
 {
-    *this = other;
-}
-
-Node& Node::operator=(const Node& other) // this also never gets called.
-{
-    if (this == &other)
-    {
-        return *this;
-    }
-
-    if (next != nullptr)
-    {
-        delete next;
-    }
-    val = other.val;
-    next = new Node(other.next->val);
-    return *this;
+    Node* ptr_to_next = next;
+    next = nullptr;
+    return ptr_to_next;
 }
 
 Stack::Stack()
@@ -51,7 +46,7 @@ Stack::Stack()
 
 Stack::~Stack()
 {
-    if (top != nullptr)
+    if (!Empty()) // same as checking if top is nullptr
     {
         delete top; //should delete everything down the chain
     }
@@ -64,44 +59,29 @@ Stack::Stack(const Stack& other)
 
 Stack& Stack::operator=(const Stack& other)
 {
+    // check for self assignment
     if (this == &other)
     {
         return *this;
     }
 
-    if (other.size == 0)
+    // check if self is empty or not
+    if (!Empty())
     {
-        size = other.size;
+        delete top;
+        top = nullptr;
+    }
+
+    // Check for assigning nothing over.
+    if (other.Empty())
+    {
+        size = 0;
         top = nullptr;
         return *this;
     }
 
     size = other.size;
-
-    if (size >= 1)
-    {
-        delete top; // remove everything that is currently on the lhs copy.
-        top = new Node(other.top->val); 
-        //top = other.top; //this DOES NOT call copy constructor. it just assigns a pointer.
-        //*top = *other.top; // copy contents of other.top to top. but you cant call node copy constructor on a nullptr as lhs.
-        //*top = Node(*other.top);
-    }
-
-    Node* this_itr = top;
-    Node* other_itr = other.top;
-
-    while (other_itr->next != nullptr)
-    {
-        //*this_itr->next = *other_itr->next;
-        //*this_itr->next = Node(*other_itr->next);
-        this_itr->next = new Node(other_itr->next->val);
-        this_itr = this_itr->next;
-        other_itr = other_itr->next;
-    }
-
-
-
-
+    top = new Node(*other.top);
     return *this;
 }
 
@@ -114,13 +94,13 @@ void Stack::Push(int val)
 
 int Stack::Pop()
 {
-    if (size == 0)
+    if (Empty())
     {
         return -1;
     }
+
     int popped_val = top->val;
-    Node* new_top = top->next;
-    top->next = nullptr;
+    Node * new_top = top->DisconnectNode();
     delete top;
     top = new_top;
     --size;

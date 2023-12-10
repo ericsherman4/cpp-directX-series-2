@@ -25,7 +25,8 @@ public:
 	Node(int val_in, Node* next_in);
 	~Node();
 	Node(const Node& other);
-	Node& operator=(const Node& other);
+	Node* DisconnectNode(void);
+	Node& operator=(const Node& other) = delete;
 
 public:
 	int val;

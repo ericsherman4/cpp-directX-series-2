@@ -22,12 +22,12 @@ Node::~Node()
     }
 }
 
-Node::Node(const Node& other)
+Node::Node(const Node& other) //this never gets called
 {
     *this = other;
 }
 
-Node& Node::operator=(const Node& other)
+Node& Node::operator=(const Node& other) // this also never gets called.
 {
     if (this == &other)
     {
@@ -80,7 +80,7 @@ Stack& Stack::operator=(const Stack& other)
 
     if (size >= 1)
     {
-
+        delete top; // remove everything that is currently on the lhs copy.
         top = new Node(other.top->val); 
         //top = other.top; //this DOES NOT call copy constructor. it just assigns a pointer.
         //*top = *other.top; // copy contents of other.top to top. but you cant call node copy constructor on a nullptr as lhs.

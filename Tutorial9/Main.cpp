@@ -69,9 +69,29 @@ int main()
         }
     }
 
+    std::vector<std::string> common_five_letter_words;
+
+    {
+        std::ifstream common_five_letter_file("20k.txt");
+        for (std::string line; std::getline(common_five_letter_file, line);)
+        {
+            if (line.empty() || line.size() != 5)
+            {
+                continue;
+            }
+            common_five_letter_words.emplace_back(line);
+        }
+    }
+
     std::mt19937 rng(std::random_device{}());
-    std::uniform_int_distribution<int> dist(0, five_letter_words.size() - 1);
-    const std::string target = five_letter_words[dist(rng)];
+    std::uniform_int_distribution<int> dist(0, common_five_letter_words.size() - 1);
+
+    std::string target = common_five_letter_words[dist(rng)];
+    while (!vector_contains_word(five_letter_words, target))
+    {
+        std::cout << target << " not valid." << std::endl;
+        target = common_five_letter_words[dist(rng)];
+    }
 
     while (true)
     {

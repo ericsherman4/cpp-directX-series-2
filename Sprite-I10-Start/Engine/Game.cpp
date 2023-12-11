@@ -46,9 +46,9 @@ void Game::UpdateModel()
 	static int pos2 = 200;
 	static int pos3 = 300;
 
-	pos1 += 2;
-	pos2 += 1;
-	pos3 += 1;
+	pos1 += 1;
+	pos2 += 2;
+	pos3 += 3;
 
 	for (int y = 0; y < surf.GetHeight(); y++)
 	{
@@ -57,8 +57,8 @@ void Game::UpdateModel()
 
 			surf.PutPixel(x, y, Color(
 				((x - pos1) * (x - pos1)) + ((y - pos1) * (y - pos1)),
-				((x - pos2) * (x - pos2)) + ((y - pos2) * (y - pos2)),
-				((x - pos3) * (x - pos3)) + ((y - pos3) * (y - pos3))
+				((x - pos2)) + ((y - pos2)),
+				((x - pos3) * (x - pos3)) + ((y - pos3))
 			));
 		}
 	}

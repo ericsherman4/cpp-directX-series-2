@@ -43,5 +43,5 @@ private:
 	/********************************/
 	/*  User Variables              */
 	/********************************/
-	Surface surf = Surface(300, 300);
+	Surface surf = Surface(gfx.ScreenWidth, gfx.ScreenHeight);
 };

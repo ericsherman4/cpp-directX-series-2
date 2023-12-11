@@ -27,22 +27,9 @@ Game::Game( MainWindow& wnd )
 	gfx( wnd )
 {
 
-	const int pos1 = 10;
-	const int pos2 = 20;
-	const int pos3 = 30;
 
-	for (int y = 0; y < surf.GetHeight(); y++)
-	{
-		for (int x = 0; x < surf.GetWidth(); x++)
-		{
 
-			surf.PutPixel(x, y,Color(
-				((x - pos1) * (x - pos1)) + ((y - pos1) * (y - pos1)),
-				((x - pos2) * (x - pos2)) + ((y - pos2) * (y - pos2)),
-				((x - pos3) * (x - pos3)) + ((y - pos3) * (y - pos3))
-			));
-		}
-	}
+
 }
 
 void Game::Go()
@@ -55,9 +42,29 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
+	static int pos1 = 100;
+	static int pos2 = 200;
+	static int pos3 = 300;
+
+	pos1 += 2;
+	pos2 += 1;
+	pos3 += 1;
+
+	for (int y = 0; y < surf.GetHeight(); y++)
+	{
+		for (int x = 0; x < surf.GetWidth(); x++)
+		{
+
+			surf.PutPixel(x, y, Color(
+				((x - pos1) * (x - pos1)) + ((y - pos1) * (y - pos1)),
+				((x - pos2) * (x - pos2)) + ((y - pos2) * (y - pos2)),
+				((x - pos3) * (x - pos3)) + ((y - pos3) * (y - pos3))
+			));
+		}
+	}
 }
 
 void Game::ComposeFrame()
 {
-	gfx.DrawSprite(100, 100, surf);
+	gfx.DrawSprite(0, 0, surf);
 }

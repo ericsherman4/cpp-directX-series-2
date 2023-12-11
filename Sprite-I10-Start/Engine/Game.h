@@ -43,5 +43,7 @@ private:
 	/********************************/
 	/*  User Variables              */
 	/********************************/
-	Surface surf = Surface(gfx.ScreenWidth, gfx.ScreenHeight);
+	//Surface surf = Surface("dibr.bmp");
+	//Surface surf = Surface("dib.bmp");
+	Surface surf = Surface("dib32.bmp");
 };

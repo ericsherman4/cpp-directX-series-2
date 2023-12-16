@@ -42,5 +42,9 @@ void Game::UpdateModel()
 
 void Game::ComposeFrame()
 {
-	gfx.DrawSprite(0, 0, surf);
+	gfx.DrawSprite(-20, -20, { 32, 64, 48, 96 }, {0, gfx.ScreenWidth, 0, gfx.ScreenHeight}, surf, Colors::Magenta);
+	gfx.DrawSprite(200, 200, { 32,64,48,96 }, { 0, gfx.ScreenWidth, 0, gfx.ScreenHeight }, surf, Colors::Magenta);
+	gfx.DrawSprite(gfx.ScreenWidth-20, gfx.ScreenHeight-20, { 32,64,48,96 }, { 0, gfx.ScreenWidth, 0, gfx.ScreenHeight }, surf, Colors::Magenta);
+
+	gfx.DrawSprite(wnd.mouse.GetPosX(), wnd.mouse.GetPosY(), { 32,64,48,96 }, gfx.GetScreenRect(), surf, Colors::Magenta);
 }

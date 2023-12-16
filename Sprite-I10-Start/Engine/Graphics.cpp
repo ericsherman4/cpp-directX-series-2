@@ -252,6 +252,11 @@ Graphics::~Graphics()
 	if( pImmediateContext ) pImmediateContext->ClearState();
 }
 
+RectI Graphics::GetScreenRect()
+{
+	return RectI(0, ScreenWidth, 0, ScreenHeight);
+}
+
 void Graphics::EndFrame()
 {
 	HRESULT hr;
@@ -316,15 +321,113 @@ void Graphics::PutPixel( int x,int y,Color c )
 	pSysBuffer[Graphics::ScreenWidth * y + x] = c;
 }
 
-void Graphics::DrawSprite(int x, int y, const Surface& s)
+void Graphics::DrawSpriteNonChroma(int x, int y, const Surface& s)
 {
-	for (int sx{ 0 }; sx < s.GetWidth(); ++sx)
+	DrawSpriteNonChroma(x, y, s.GetRect(), s);
+}
+
+void Graphics::DrawSpriteNonChroma(int x, int y, const RectI& rect, const Surface& s)
+{
+	DrawSpriteNonChroma(x, y, rect, Graphics::GetScreenRect(), s);
+}
+
+// x y is where the region of the section of the sprite will go on the screen
+// rect specifies that region within the sprite. and Surface is the sprite itself.
+void Graphics::DrawSpriteNonChroma(int x, int y, RectI rect, const RectI & clip, const Surface& s)
+{
+	// ensure rect is within the surface
+	assert(rect.left >= 0);
+	assert(rect.top >= 0);
+	assert(rect.right <= s.GetWidth());
+	assert(rect.bottom <= s.GetHeight());
+
+	if (x < clip.left)
 	{
-		for (int sy{ 0 }; sy < s.GetHeight(); ++sy)
+		rect.left += clip.left - x;
+		x = clip.left;
+	}
+	
+	if (y < clip.top)
+	{
+		rect.top += clip.top - y;
+		y = clip.top;
+	}
+
+	if (x + rect.GetWidth() > clip.right)
+	{
+		rect.right = rect.right - (x + rect.GetWidth() - clip.right) ;
+	}
+
+	if (y + rect.GetHeight() > clip.bottom)
+	{
+		rect.bottom = rect.bottom - (y + rect.GetHeight() - clip.bottom);
+	}
+
+	for (int sx{ rect.left }; sx < rect.right; ++sx)
+	{
+		for (int sy{ rect.top }; sy < rect.bottom ; ++sy)
 		{
-			PutPixel(x + sx, y+ sy, s.GetPixel(sx, sy));
+			const int x_final = x + sx - rect.left;
+			const int y_final = y + sy - rect.top;
+			PutPixel(x_final, y_final, s.GetPixel(sx, sy));
 		}
 	}
+}
+
+void Graphics::DrawSprite(int x, int y, const Surface& s, Color chroma)
+{
+	DrawSprite(x, y, s.GetRect(), s, chroma);
+}
+
+void Graphics::DrawSprite(int x, int y, const RectI& rect, const Surface& s, Color chroma)
+{
+	DrawSprite(x, y, rect, Graphics::GetScreenRect(), s, chroma);
+}
+
+void Graphics::DrawSprite(int x, int y, RectI rect, const RectI& clip, const Surface& s, Color chroma)
+{
+	// ensure rect is within the surface
+	assert(rect.left >= 0);
+	assert(rect.top >= 0);
+	assert(rect.right <= s.GetWidth());
+	assert(rect.bottom <= s.GetHeight());
+
+	if (x < clip.left)
+	{
+		rect.left += clip.left - x;
+		x = clip.left;
+	}
+
+	if (y < clip.top)
+	{
+		rect.top += clip.top - y;
+		y = clip.top;
+	}
+
+	if (x + rect.GetWidth() > clip.right)
+	{
+		rect.right = rect.right - (x + rect.GetWidth() - clip.right);
+	}
+
+	if (y + rect.GetHeight() > clip.bottom)
+	{
+		rect.bottom = rect.bottom - (y + rect.GetHeight() - clip.bottom);
+	}
+
+	for (int sx{ rect.left }; sx < rect.right; ++sx)
+	{
+		for (int sy{ rect.top }; sy < rect.bottom; ++sy)
+		{
+			const Color srcPixel = s.GetPixel(sx, sy);
+			const int x_final = x + sx - rect.left;
+			const int y_final = y + sy - rect.top;
+			if (chroma != srcPixel)
+			{
+				PutPixel(x_final, y_final, srcPixel);
+			}
+		}
+	}
+
 }
 
 

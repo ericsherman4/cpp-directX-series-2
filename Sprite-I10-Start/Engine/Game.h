@@ -23,6 +23,9 @@
 #include "Keyboard.h"
 #include "Mouse.h"
 #include "Graphics.h"
+#include "Animation.h"
+#include "FrameTimer.h"
+#include "Character.h"
 
 class Game
 {
@@ -45,5 +48,6 @@ private:
 	/********************************/
 	//Surface surf = Surface("dibr.bmp");
 	//Surface surf = Surface("dib.bmp");
-	Surface surf = Surface("marle32x48.bmp");
+	FrameTimer ft;
+	Character link = Character({ 100.f,100.f });
 };

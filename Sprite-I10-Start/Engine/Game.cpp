@@ -38,13 +38,31 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
+	Vec2 dir = { 0.0f, 0.0f };
+
+	if (wnd.kbd.KeyIsPressed(VK_UP))
+	{
+		dir.y -= 1.0f;
+	}
+	if (wnd.kbd.KeyIsPressed(VK_DOWN))
+	{
+		dir.y += 1.0f;
+	}
+
+	if (wnd.kbd.KeyIsPressed(VK_RIGHT))
+	{
+		dir.x += 1.0f;
+	}
+	if (wnd.kbd.KeyIsPressed(VK_LEFT))
+	{
+		dir.x -= 1.0f;
+	}
+
+	link.SetDirection(dir);
+	link.Update(ft.Mark());
 }
 
 void Game::ComposeFrame()
 {
-	gfx.DrawSprite(-20, -20, { 32, 64, 48, 96 }, {0, gfx.ScreenWidth, 0, gfx.ScreenHeight}, surf, Colors::Magenta);
-	gfx.DrawSprite(200, 200, { 32,64,48,96 }, { 0, gfx.ScreenWidth, 0, gfx.ScreenHeight }, surf, Colors::Magenta);
-	gfx.DrawSprite(gfx.ScreenWidth-20, gfx.ScreenHeight-20, { 32,64,48,96 }, { 0, gfx.ScreenWidth, 0, gfx.ScreenHeight }, surf, Colors::Magenta);
-
-	gfx.DrawSprite(wnd.mouse.GetPosX(), wnd.mouse.GetPosY(), { 32,64,48,96 }, gfx.GetScreenRect(), surf, Colors::Magenta);
+	link.Draw(gfx);
 }

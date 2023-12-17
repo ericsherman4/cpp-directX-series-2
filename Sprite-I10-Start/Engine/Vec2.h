@@ -11,11 +11,15 @@ public:
 		, y(y_in)
 	{
 	}
-	Vec2_(const Vec2_<float>& vec)
+
+	template<typename T_in>
+	// explicit must specify the conversion
+	explicit Vec2_(const Vec2_<T_in>& vec)
 		: x(static_cast<T>(vec.x))
 		, y(static_cast<T>(vec.y))
 	{	
 	}
+
 	Vec2_ operator+(const Vec2_& rhs) const
 	{
 		return Vec2_(x + rhs.x, y + rhs.y);

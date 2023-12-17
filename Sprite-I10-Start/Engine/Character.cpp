@@ -22,11 +22,11 @@ void Character::Draw(Graphics& gfx) const
 {
     if (effectActive)
     {
-        animations[static_cast<int>(currAnim)].DrawColor(pos, gfx, Colors::Red);
+        animations[static_cast<int>(currAnim)].DrawColor(static_cast<Vei2>(pos), gfx, Colors::Red);
     }
     else
     {
-        animations[static_cast<int>(currAnim)].Draw(pos, gfx);
+        animations[static_cast<int>(currAnim)].Draw(static_cast<Vei2>(pos), gfx);
     }
 }
 

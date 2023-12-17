@@ -321,6 +321,15 @@ void Graphics::PutPixel( int x,int y,Color c )
 	pSysBuffer[Graphics::ScreenWidth * y + x] = c;
 }
 
+Color Graphics::GetPixel(int x, int y) const
+{
+	assert(x >= 0);
+	assert(x < int(Graphics::ScreenWidth));
+	assert(y >= 0);
+	assert(y < int(Graphics::ScreenHeight));
+	return pSysBuffer[Graphics::ScreenWidth * y + x];
+}
+
 void Graphics::DrawSpriteNonChroma(int x, int y, const Surface& s)
 {
 	DrawSpriteNonChroma(x, y, s.GetRect(), s);
@@ -483,6 +492,68 @@ void Graphics::DrawSpriteSubstitue(int x, int y, Color sub, RectI rect, const Re
 		}
 	}
 
+}
+
+void Graphics::DrawSpriteGhost(int x, int y, const Surface& s, Color chroma)
+{
+	DrawSpriteGhost(x, y, Graphics::GetScreenRect(), s, chroma);
+}
+
+void Graphics::DrawSpriteGhost(int x, int y, const RectI& rect, const Surface& s, Color chroma)
+{
+	DrawSpriteGhost(x, y, rect, Graphics::GetScreenRect(), s, chroma);
+}
+
+void Graphics::DrawSpriteGhost(int x, int y, RectI rect, const RectI& clip, const Surface& s, Color chroma)
+{
+	assert(rect.left >= 0);
+	assert(rect.top >= 0);
+	assert(rect.right <= s.GetWidth());
+	assert(rect.bottom <= s.GetHeight());
+
+	if (x < clip.left)
+	{
+		rect.left += clip.left - x;
+		x = clip.left;
+	}
+
+	if (y < clip.top)
+	{
+		rect.top += clip.top - y;
+		y = clip.top;
+	}
+
+	if (x + rect.GetWidth() > clip.right)
+	{
+		rect.right = rect.right - (x + rect.GetWidth() - clip.right);
+	}
+
+	if (y + rect.GetHeight() > clip.bottom)
+	{
+		rect.bottom = rect.bottom - (y + rect.GetHeight() - clip.bottom);
+	}
+
+	for (int sx{ rect.left }; sx < rect.right; ++sx)
+	{
+		for (int sy{ rect.top }; sy < rect.bottom; ++sy)
+		{
+			const Color srcPixel = s.GetPixel(sx, sy);
+			const int x_final = x + sx - rect.left;
+			const int y_final = y + sy - rect.top;
+			if (chroma != srcPixel)
+			{
+				const Color dstPixel = GetPixel(x_final, y_final);
+
+				const Color blendedPixel(
+					(dstPixel.GetR() + srcPixel.GetR()) / 2,
+					(dstPixel.GetG() + srcPixel.GetG()) / 2,
+					(dstPixel.GetB() + srcPixel.GetB()) / 2
+				);
+
+				PutPixel(x_final, y_final, blendedPixel);
+			}
+		}
+	}
 }
 
 

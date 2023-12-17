@@ -15,7 +15,7 @@ Animation::Animation(int x, int y, int width, int height, int numFrames, const S
 
 void Animation::Draw(const Vei2& pos, Graphics& gfx) const
 {
-    gfx.DrawSprite(pos.x, pos.y, frames[iCurrFrame], sprite, chroma);
+    gfx.DrawSpriteGhost(pos.x, pos.y, frames[iCurrFrame], sprite, chroma);
 }
 
 void Animation::Draw(const Vei2& pos, Graphics& gfx, const RectI& clip) const

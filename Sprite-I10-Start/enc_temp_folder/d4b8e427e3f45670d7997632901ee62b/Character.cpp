@@ -80,13 +80,10 @@ void Character::Update(float dt)
     pos += vel * dt;
     animations[static_cast<int>(currAnim)].Update(dt);
     
-    if (effectActive)
+    effectTime += dt;
+    if (effectActive && effectTime > effectDuration)
     {
-        effectTime += dt;
-        if (effectTime > effectDuration)
-        {
-            effectActive = false;
-        }
+        effectActive = false;
     }
 }
 

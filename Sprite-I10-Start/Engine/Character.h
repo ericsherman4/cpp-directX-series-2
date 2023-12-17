@@ -24,6 +24,7 @@ public:
     void Draw(Graphics& gfx) const;
     void SetDirection(const Vec2& dir);
     void Update(float dt);
+    void ActivateEffect();
 
 private:
     Surface sprite;
@@ -32,5 +33,8 @@ private:
     std::vector<Animation> animations;
     Sequence currAnim = Sequence::StandingDown;
     float speed = 110.f;
+    static constexpr float effectDuration = 0.045;
+    float effectTime = 0.0f;
+    bool effectActive = false;
 };
 

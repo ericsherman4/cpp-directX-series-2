@@ -24,7 +24,8 @@
 Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
-	gfx( wnd )
+	gfx( wnd ),
+	font("Consolas13x24.bmp")
 {
 }
 
@@ -57,6 +58,10 @@ void Game::UpdateModel()
 	{
 		dir.x -= 1.0f;
 	}
+	if (wnd.kbd.KeyIsPressed(VK_SPACE))
+	{
+		link.ActivateEffect();
+	}
 
 	link.SetDirection(dir);
 	link.Update(ft.Mark());
@@ -65,4 +70,7 @@ void Game::UpdateModel()
 void Game::ComposeFrame()
 {
 	link.Draw(gfx);
+	font.DrawText("hello\nwor\nl\nd", Colors::Red, wnd.mouse.GetPos(), gfx);
+	
+	//font.DrawText("hello world", { 100, 100 }, gfx);
 }

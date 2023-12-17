@@ -26,6 +26,7 @@
 #include "Animation.h"
 #include "FrameTimer.h"
 #include "Character.h"
+#include "Font.h"
 
 class Game
 {
@@ -50,4 +51,5 @@ private:
 	//Surface surf = Surface("dib.bmp");
 	FrameTimer ft;
 	Character link = Character({ 100.f,100.f });
+	Font font;
 };

@@ -430,6 +430,61 @@ void Graphics::DrawSprite(int x, int y, RectI rect, const RectI& clip, const Sur
 
 }
 
+void Graphics::DrawSpriteSubstitue(int x, int y, Color sub, const Surface& s, Color chroma)
+{
+	DrawSpriteSubstitue(x, y, sub, s.GetRect(), s, chroma);
+}
+
+void Graphics::DrawSpriteSubstitue(int x, int y, Color sub, const RectI& rect, const Surface& s, Color chroma)
+{
+	DrawSpriteSubstitue(x, y, sub, rect, Graphics::GetScreenRect(), s, chroma);
+}
+
+void Graphics::DrawSpriteSubstitue(int x, int y, Color sub, RectI rect, const RectI& clip, const Surface& s, Color chroma)
+{
+	assert(rect.left >= 0);
+	assert(rect.top >= 0);
+	assert(rect.right <= s.GetWidth());
+	assert(rect.bottom <= s.GetHeight());
+
+	if (x < clip.left)
+	{
+		rect.left += clip.left - x;
+		x = clip.left;
+	}
+
+	if (y < clip.top)
+	{
+		rect.top += clip.top - y;
+		y = clip.top;
+	}
+
+	if (x + rect.GetWidth() > clip.right)
+	{
+		rect.right = rect.right - (x + rect.GetWidth() - clip.right);
+	}
+
+	if (y + rect.GetHeight() > clip.bottom)
+	{
+		rect.bottom = rect.bottom - (y + rect.GetHeight() - clip.bottom);
+	}
+
+	for (int sx{ rect.left }; sx < rect.right; ++sx)
+	{
+		for (int sy{ rect.top }; sy < rect.bottom; ++sy)
+		{
+			const Color srcPixel = s.GetPixel(sx, sy);
+			const int x_final = x + sx - rect.left;
+			const int y_final = y + sy - rect.top;
+			if (chroma != srcPixel)
+			{
+				PutPixel(x_final, y_final, sub);
+			}
+		}
+	}
+
+}
+
 
 //////////////////////////////////////////////////
 //           Graphics Exception

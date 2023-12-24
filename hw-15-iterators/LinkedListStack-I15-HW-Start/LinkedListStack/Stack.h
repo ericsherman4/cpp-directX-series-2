@@ -8,7 +8,8 @@ class Stack
 private:
 	class Element
 	{
-	public:
+		
+	public: // element public
 		Element( int val,Element* pNext )
 			:
 			val( val ),
@@ -45,32 +46,89 @@ private:
 				return 1;
 			}
 		}
-		void operator*=(int mul)
-		{
-			val *= mul;
-		}
-		Element* operator++()
-		{
-			Element* fun = this->pNext;
-			return this->pNext;
-		}
-		friend std::ostream& operator<<(std::ostream& stream, Element ele)
-		{
-			stream << ele.GetVal();
-			return stream;
-		}
-
 		~Element()
 		{
 			delete pNext;
 			pNext = nullptr;
 		}
-	private:
+
+		// dont make this private cause of the silly way all these classes are nested
 		int val;
 		Element* pNext = nullptr;
 	};
 
-public:
+public: // stack public
+	class ConstIterator
+	{
+	public:
+		ConstIterator() = default;
+		ConstIterator(Element* ptr)
+			: iter(ptr)
+		{
+		}
+		ConstIterator& operator++() // prefix operator doesnt take any param
+		{
+			iter = iter->pNext;
+			return *this;
+		}
+		bool operator!=(const ConstIterator& rhs) const
+		{
+			return iter != rhs.iter;
+		}
+		// dereference operator, not multiplication!
+		// multiplication would take parameters
+		// you need this for the for loop to make happy because n is dereferenced
+		// and this way you also dont need the overloaded << operator
+
+		// i guess its better to return a const int & than an int becuase youll get an error modiyfing it,
+		// verses modying a copy and realizing what youre doing.
+		const int& operator*() const
+		{
+			return iter->val;
+		}
+		//friend std::ostream& operator<<(std::ostream& stream, Iterator& rhs)
+		//{
+		//	stream << rhs.iter->val;
+		//	return stream;
+		//}
+	private:
+		Element* iter = nullptr;
+	};
+
+	class Iterator
+	{
+	public:
+		Iterator() = default;
+		Iterator(Element* ptr)
+			: iter (ptr)
+		{
+		}
+		Iterator& operator++() // prefix operator doesnt take any param
+		{
+			iter = iter->pNext;
+			return *this;
+		}
+		bool operator!=(const Iterator & rhs) const
+		{
+			return iter != rhs.iter;
+		}
+		// dereference operator, not multiplication!
+		// multiplication would take parameters
+		// you need this for the for loop to make happy because n is dereferenced
+		// and this way you also dont need the overloaded << operator
+		int& operator*()
+		{
+			return iter->val;
+		}
+		//friend std::ostream& operator<<(std::ostream& stream, Iterator& rhs)
+		//{
+		//	stream << rhs.iter->val;
+		//	return stream;
+		//}
+	private:
+		Element* iter = nullptr;
+	};
+
 	Stack() = default;
 	Stack( const Stack& src )
 	{
@@ -98,17 +156,6 @@ public:
 		delete pTop;
 		pTop = nullptr;
 	}
-
-	Element* begin()
-	{
-		return pTop;
-	}
-
-	Element* end()
-	{
-		return nullptr;
-	}
-
 	void Push( int val )
 	{
 		pTop = new Element( val,pTop );
@@ -143,6 +190,32 @@ public:
 	{
 		return pTop == nullptr;
 	}
+
+	Iterator begin()
+	{
+		//return Iterator(pTop);
+		return { pTop };
+	}
+
+	Iterator end()
+	{
+		return {};
+	}
+
+	ConstIterator begin() const
+	{
+		//return Iterator(pTop);
+		return { pTop };
+	}
+
+	ConstIterator end() const
+	{
+		return {};
+	}
+
+
+
+	
 private:
 	Element* pTop = nullptr;
 };

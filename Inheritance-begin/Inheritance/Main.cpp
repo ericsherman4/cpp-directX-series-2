@@ -1,142 +1,70 @@
 #include <iostream>
 #include <string>
+#include <conio.h>
+#include <random>
 
-class Smasher
+class Dice
 {
 public:
-	Smasher()
-		:
-		Smasher( 69,1,"McDefault" )
-	{}
-	Smasher( int hp,int str,const std::string& name )
-		:
-		hp( hp ),
-		str( str ),
-		name( name )
-	{}
-	int GetStr() const
+	int Roll(int nDice)
 	{
-		return str;
-	}
-	int GetHP() const
-	{
-		return hp;
-	}
-	const std::string& GetName() const
-	{
-		return name;
-	}
-	void Smash( Smasher& target ) const
-	{
-		if( target.IsDead() )
+		int total = 0;
+		for (int n = 0; n < nDice; n++)
 		{
-			std::cout << name << " smashes " << target.GetName() << "'s dead body. Still dead.\n";
+			total += d6(rng);
 		}
-		else
-		{
-			std::cout << name << " smashes " << target.GetName() << ".\n";
-			target.TakeDamage( GetStr() );
-		}
+		return total;
 	}
-	void TakeDamage( int damage )
-	{
-		std::cout << name << " takes " << damage << " damage.\n";
-		hp -= damage;
-
-		if( IsDead() )
-		{
-			std::cout << name << " dies.\n";
-		}
-	}
-	bool IsDead() const
-	{
-		return hp <= 0;
-	}
-
-protected:
-	int hp;
-	int str; //strength
-
 private:
-	std::string name;
+	std::uniform_int_distribution<int> d6 = std::uniform_int_distribution<int>(1, 6);
+	std::mt19937 rng = std::mt19937(std::random_device{}());
 };
 
-class EliteSmasher : public Smasher
+void Engage(MemeFighter& f1, MemeFighter& f2)
 {
-public: 
-
-	EliteSmasher(int hp, int str, const std::string& name)
-		: Smasher(hp, str, name)
+	// pointers for sorting purposes
+	auto* p1 = &f1;
+	auto* p2 = &f2;
+	// determine attack order
+	if (p1->GetInitiative() < p2->GetInitiative())
 	{
+		std::swap(p1, p2);
 	}
-
-	// we want a supersmash powerup 
-	void SuperSmash(Smasher& target)
-	{
-		if (sp > 0)
-		{
-			if (target.IsDead())
-			{
-				std::cout << GetName() << " SUPER smashes " << target.GetName() << "'s dead body. Still dead.\n";
-			}
-			else
-			{
-				std::cout << GetName() << " SUPER smashes " << target.GetName() << ".\n";
-				target.TakeDamage(GetStr() * 2);
-			}
-			sp -= 3;
-		}
-		else
-		{
-			std::cout << GetName() << " tried to use super smash on " << target.GetName() << ", but he didn't have enough goddam sp." << "\n";
-		}
-	}
-
-	void PepUp()
-	{
-		if (sp >= 2)
-		{
-			std::cout << GetName() << " uses Pep Up and gains 30 hp and 10 str.\n";
-			hp += 30;
-			str += 10;
-			sp -= 2;
-		}
-		else
-		{
-			std::cout << GetName() << " tried to use Pep Up but lacks sp.\n";
-		}
-	}
-
-
-
-	// override! or is it? cause cosnt specifier was removed?
-	void Smash(Smasher& target)
-	{		
-		Smasher::Smash(target);
-		std::cout << GetName() << " recovers 2 sp.\n";
-		sp += 2;
-	}
-
-private:
-	int sp = 6;
-
-};
+	// execute attacks
+	p1->Punch(*p2);
+	p2->Punch(*p1);
+}
 
 int main()
 {
-	Smasher df( 100,30,"Dik Fuk" );
-	EliteSmasher tb(100,35, "Tutor Bill");
+	MemeFrog f1("Dat Boi");
+	MemeStoner f2("Good Guy Greg");
 
-	df.Smash(tb); // passed an elitesmasher to a function that just takes smasher as an argument.
-	tb.PepUp();
-	tb.SuperSmash( df );
-	tb.SuperSmash( df );
-	tb.SuperSmash(df);
-	tb.Smash( df );
-	tb.Smash( df );
-	tb.SuperSmash( df );
+	while (f1.IsAlive() && f2.IsAlive())
+	{
+		// trade blows
+		Engage(f1, f2);
+		// special moves
+		f2.SpecialMove();
+		f1.SpecialMove(f2);
+		// end of turn maintainence
+		f1.Tick();
+		f2.Tick();
 
+		std::cout << "Press any key to continue...";
+		while (!_kbhit());
+		_getch();
+		std::cout << std::endl << std::endl;
+	}
 
-	std::cin.get();
+	if (f1.IsAlive())
+	{
+		std::cout << f1.GetName() << " is victorious!";
+	}
+	else
+	{
+		std::cout << f2.GetName() << " is victorious!";
+	}
+	while (!_kbhit());
 	return 0;
 }

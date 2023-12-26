@@ -20,6 +20,122 @@ private:
 	std::mt19937 rng = std::mt19937(std::random_device{}());
 };
 
+
+class MemeFighter
+{
+public:
+
+	MemeFighter(int hp, int speed, int power, std::string name)
+		: hp (hp)
+		, speed(speed)
+		, power(power)
+		, name(name)
+	{
+	}
+
+	std::string GetName() {
+		return name;
+	}
+	int GetInitiative() {
+		const int initiative = speed + dice.Roll(2);
+		std::cout << name << " got " << initiative << " initiative.\n";
+		return initiative;
+	}
+	bool IsAlive() {
+		return hp <= 0; 
+	}
+	void Punch(MemeFighter& other)
+	{
+		if (IsAlive())
+		{
+			const int damage = power + dice.Roll(2);
+			other.hp -= damage;
+			std::cout << name << " punched " << other.name << " and did " << damage << " damage.\n";
+		}
+	}
+	void Tick()
+	{
+		if (IsAlive())
+		{
+			const int hp_gain = dice.Roll(1);
+			hp += hp_gain;
+			std::cout << name << " gained " << hp_gain << ".\n";
+		}
+	}
+
+protected:
+	Dice dice;
+	int hp;
+	int speed;
+	int power;
+	std::string name;
+};
+
+class MemeFrog : public MemeFighter
+{
+public:
+	MemeFrog(std::string name)
+		: MemeFighter(69, 7, 14, name)
+	{
+	}
+
+	void SpecialMove(MemeFighter& other)
+	{
+		if (IsAlive())
+		{
+			// 1/3 chance of happening, lol
+			if (dice.Roll(1) < 3)
+			{
+				const int damage = 20 + dice.Roll(3);
+				other.hp -= damage;
+				std::cout << GetName() << " did a special move on " << other.GetName() << " and did " << damage << " damage.\n";
+			}
+		}
+	}
+
+	void Tick()
+	{
+		if (IsAlive())
+		{
+			const int hp_lose = dice.Roll(1);
+			hp -= hp_lose;
+			std::cout << GetName() << " gained " << hp_lose << ".\n";
+
+		}
+	}
+};
+class MemeStoner : public MemeFighter
+{
+
+public:
+	MemeStoner(std::string name)
+		: MemeFighter(80, 4, 10, name)
+	{
+	}
+
+	void SpecialMove()
+	{
+		if (IsAlive())
+		{
+			// 1/2 chance
+			if (dice.Roll(1) % 2 == 0)
+			{
+				power += 1;
+				hp += 10;
+
+				name.insert(name[0], "Super ");
+
+				std::cout << GetName() << " rolled a special move and recieved 10 hp and 1 power and the Super name\n";
+
+			}
+		}
+	}
+
+};
+
+
+
+
 void Engage(MemeFighter& f1, MemeFighter& f2)
 {
 	// pointers for sorting purposes

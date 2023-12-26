@@ -53,9 +53,11 @@ public:
 		return hp <= 0;
 	}
 
-private:
+protected:
 	int hp;
 	int str; //strength
+
+private:
 	std::string name;
 };
 
@@ -90,24 +92,29 @@ public:
 		}
 	}
 
-	// override! or is it? cause cosnt specifier was removed?
-	void Smash(Smasher& target)
+	void PepUp()
 	{
-		/*if (target.IsDead())
+		if (sp >= 2)
 		{
-			std::cout << GetName() << " smashes " << target.GetName() << "'s dead body. Still dead.\n";
+			std::cout << GetName() << " uses Pep Up and gains 30 hp and 10 str.\n";
+			hp += 30;
+			str += 10;
+			sp -= 2;
 		}
 		else
 		{
-			std::cout << GetName() << " smashes " << target.GetName() << ".\n";
-			target.TakeDamage(GetStr());
-		}*/
-		
-		// this is all duplicate code^, call parents
+			std::cout << GetName() << " tried to use Pep Up but lacks sp.\n";
+		}
+	}
+
+
+
+	// override! or is it? cause cosnt specifier was removed?
+	void Smash(Smasher& target)
+	{		
 		Smasher::Smash(target);
 		std::cout << GetName() << " recovers 2 sp.\n";
 		sp += 2;
-
 	}
 
 private:
@@ -121,7 +128,7 @@ int main()
 	EliteSmasher tb(100,35, "Tutor Bill");
 
 	df.Smash(tb); // passed an elitesmasher to a function that just takes smasher as an argument.
-	
+	tb.PepUp();
 	tb.SuperSmash( df );
 	tb.SuperSmash( df );
 	tb.SuperSmash(df);

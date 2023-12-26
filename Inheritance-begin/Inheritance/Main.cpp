@@ -25,70 +25,92 @@ class MemeFighter
 {
 public:
 
-	MemeFighter(int hp, int speed, int power, std::string name)
-		: hp (hp)
-		, speed(speed)
-		, power(power)
-		, name(name)
-	{
-	}
 
-	std::string GetName() {
+
+	const std::string & GetName() const
+	{
 		return name;
 	}
-	int GetInitiative() {
-		const int initiative = speed + dice.Roll(2);
+
+	int GetInitiative() const
+	{
+		const int initiative = speed + Roll(2);
 		std::cout << name << " got " << initiative << " initiative.\n";
 		return initiative;
 	}
-	bool IsAlive() {
-		return hp <= 0; 
-	}
-	void Punch(MemeFighter& other)
+	bool IsAlive() const 
 	{
-		if (IsAlive())
+		return hp > 0; 
+	}
+
+	void Punch(MemeFighter& target) const
+	{
+		if (IsAlive() && target.IsAlive())
 		{
-			const int damage = power + dice.Roll(2);
-			other.hp -= damage;
-			std::cout << name << " punched " << other.name << " and did " << damage << " damage.\n";
+			std::cout << name << " punched " << target.name << "\n";
+			ApplyDamageTo(target, power + Roll(2));
 		}
 	}
 	void Tick()
 	{
 		if (IsAlive())
 		{
-			const int hp_gain = dice.Roll(1);
+			const int hp_gain = Roll();
 			hp += hp_gain;
-			std::cout << name << " gained " << hp_gain << ".\n";
+			std::cout << name << " gained " << hp_gain << " HP.\n";
 		}
 	}
 
 protected:
-	Dice dice;
+	// I guess another way to make no make the base class is to make constructor protected
+	MemeFighter(int hp, int speed, int power, std::string name)
+		: hp(hp)
+		, speed(speed)
+		, power(power)
+		, name(name)
+	{
+		std::cout << name << " enters the ring!\n";
+	}
+
+	int Roll(int nDice = 1) const
+	{
+		return dice.Roll(nDice);
+	}
+
+	void ApplyDamageTo(MemeFighter& target, int damage) const
+	{
+		target.hp -= damage;
+	}
+
+
+
+protected:
 	int hp;
 	int speed;
 	int power;
 	std::string name;
+	
+private:
+	mutable Dice dice;
 };
 
 class MemeFrog : public MemeFighter
 {
 public:
-	MemeFrog(std::string name)
+	MemeFrog(const std::string &name)
 		: MemeFighter(69, 7, 14, name)
 	{
 	}
 
-	void SpecialMove(MemeFighter& other)
+	void SpecialMove(MemeFighter& target)
 	{
-		if (IsAlive())
+		if (IsAlive() && target.IsAlive())
 		{
 			// 1/3 chance of happening, lol
-			if (dice.Roll(1) < 3)
+			if (Roll(1) < 3)
 			{
-				const int damage = 20 + dice.Roll(3);
-				other.hp -= damage;
-				std::cout << GetName() << " did a special move on " << other.GetName() << " and did " << damage << " damage.\n";
+				std::cout << GetName() << " did a special move on " << target.GetName() << ".\n";
+				ApplyDamageTo(target, 20 + Roll(3));
 			}
 		}
 	}
@@ -97,9 +119,9 @@ public:
 	{
 		if (IsAlive())
 		{
-			const int hp_lose = dice.Roll(1);
-			hp -= hp_lose;
-			std::cout << GetName() << " gained " << hp_lose << ".\n";
+			std::cout << GetName() << " got some self damage.\n";
+			ApplyDamageTo(*this, Roll()); //apply damage to self.
+			MemeFighter::Tick();
 
 		}
 	}
@@ -108,7 +130,7 @@ class MemeStoner : public MemeFighter
 {
 
 public:
-	MemeStoner(std::string name)
+	MemeStoner(const std::string& name)
 		: MemeFighter(80, 4, 10, name)
 	{
 	}
@@ -118,14 +140,15 @@ public:
 		if (IsAlive())
 		{
 			// 1/2 chance
-			if (dice.Roll(1) % 2 == 0)
+			if (Roll() % 2 == 0)
 			{
-				power += 1;
+				power = (power * 69) / 42;
 				hp += 10;
+				speed += 3;
 
-				name.insert(name[0], "Super ");
+				name = "Super " + name;
 
-				std::cout << GetName() << " rolled a special move and recieved 10 hp and 1 power and the Super name\n";
+				std::cout << GetName() << " rolled a special move and recieved 10 hp, 1 power, 3 speed, and the Super name\n";
 
 			}
 		}
@@ -169,7 +192,7 @@ int main()
 
 		std::cout << "Press any key to continue...";
 		while (!_kbhit());
-		_getch();
+		(void)_getch();
 		std::cout << std::endl << std::endl;
 	}
 

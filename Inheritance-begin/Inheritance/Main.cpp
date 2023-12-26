@@ -25,13 +25,10 @@ class MemeFighter
 {
 public:
 
-
-
 	const std::string & GetName() const
 	{
 		return name;
 	}
-
 	int GetInitiative() const
 	{
 		const int initiative = speed + Roll(2);
@@ -42,7 +39,6 @@ public:
 	{
 		return hp > 0; 
 	}
-
 	void Punch(MemeFighter& target) const
 	{
 		if (IsAlive() && target.IsAlive())
@@ -60,6 +56,7 @@ public:
 			std::cout << name << " gained " << hp_gain << " HP.\n";
 		}
 	}
+	virtual void SpecialMove(MemeFighter&) = 0;
 
 protected:
 	// I guess another way to make no make the base class is to make constructor protected
@@ -71,18 +68,14 @@ protected:
 	{
 		std::cout << name << " enters the ring!\n";
 	}
-
 	int Roll(int nDice = 1) const
 	{
 		return dice.Roll(nDice);
 	}
-
 	void ApplyDamageTo(MemeFighter& target, int damage) const
 	{
 		target.hp -= damage;
 	}
-
-
 
 protected:
 	int hp;
@@ -94,6 +87,7 @@ private:
 	mutable Dice dice;
 };
 
+
 class MemeFrog : public MemeFighter
 {
 public:
@@ -101,8 +95,7 @@ public:
 		: MemeFighter(69, 7, 14, name)
 	{
 	}
-
-	void SpecialMove(MemeFighter& target)
+	void SpecialMove(MemeFighter& target) override
 	{
 		if (IsAlive() && target.IsAlive())
 		{
@@ -114,7 +107,6 @@ public:
 			}
 		}
 	}
-
 	void Tick()
 	{
 		if (IsAlive())
@@ -126,16 +118,16 @@ public:
 		}
 	}
 };
+
+
 class MemeStoner : public MemeFighter
 {
-
 public:
 	MemeStoner(const std::string& name)
 		: MemeFighter(80, 4, 10, name)
 	{
 	}
-
-	void SpecialMove()
+	void SpecialMove(MemeFighter&) override
 	{
 		if (IsAlive())
 		{
@@ -153,10 +145,7 @@ public:
 			}
 		}
 	}
-
 };
-
-
 
 
 void Engage(MemeFighter& f1, MemeFighter& f2)
@@ -173,6 +162,19 @@ void Engage(MemeFighter& f1, MemeFighter& f2)
 	p1->Punch(*p2);
 	p2->Punch(*p1);
 }
+void DoSpecials(MemeFighter& f1, MemeFighter& f2)
+{
+	auto* p1 = &f1;
+	auto* p2 = &f2;
+
+	if (p1->GetInitiative() < p2->GetInitiative())
+	{
+		std::swap(p1, p2);
+	}
+
+	p1->SpecialMove(*p2);
+	p2->SpecialMove(*p1);
+}
 
 int main()
 {
@@ -184,8 +186,7 @@ int main()
 		// trade blows
 		Engage(f1, f2);
 		// special moves
-		f2.SpecialMove();
-		f1.SpecialMove(f2);
+		DoSpecials(f1, f2);
 		// end of turn maintainence
 		f1.Tick();
 		f2.Tick();

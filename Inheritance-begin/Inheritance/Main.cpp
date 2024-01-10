@@ -2,6 +2,7 @@
 #include <string>
 #include <conio.h>
 #include <random>
+#include <algorithm>
 
 class Dice
 {
@@ -47,7 +48,7 @@ public:
 			ApplyDamageTo(target, power + Roll(2));
 		}
 	}
-	void Tick()
+	virtual void Tick()
 	{
 		if (IsAlive())
 		{
@@ -57,6 +58,10 @@ public:
 		}
 	}
 	virtual void SpecialMove(MemeFighter&) = 0;
+	virtual ~MemeFighter()
+	{
+		std::cout << "Destorying MemeFighter " << name << "\n";
+	}
 
 protected:
 	// I guess another way to make no make the base class is to make constructor protected
@@ -107,7 +112,7 @@ public:
 			}
 		}
 	}
-	void Tick()
+	void Tick() override
 	{
 		if (IsAlive())
 		{
@@ -116,6 +121,10 @@ public:
 			MemeFighter::Tick();
 
 		}
+	}
+	~MemeFrog()
+	{
+		std::cout << "Destorying MemeFrog " << name << "\n";
 	}
 };
 
@@ -144,6 +153,10 @@ public:
 
 			}
 		}
+	}
+	~MemeStoner()
+	{
+		std::cout << "Destorying MemeStoner " << name << "\n";
 	}
 };
 
@@ -178,18 +191,57 @@ void DoSpecials(MemeFighter& f1, MemeFighter& f2)
 
 int main()
 {
-	MemeFrog f1("Dat Boi");
-	MemeStoner f2("Good Guy Greg");
+	// vectors of pointers to the base type! this is the power of polymorphism!
+	std::vector<MemeFighter*> t1{
+		new MemeFrog("Dat Boi"),
+		new MemeStoner("Good Guy Greg"),
+		new MemeFrog("the WB Frog")
+	};
 
-	while (f1.IsAlive() && f2.IsAlive())
+	std::vector<MemeFighter*> t2 = {
+		new MemeStoner("Bob"),
+		new MemeStoner("jake"),
+		new MemeFrog("Pope")
+	};
+
+	
+
+	auto alive_pred = [](const MemeFighter* mf)
 	{
-		// trade blows
-		Engage(f1, f2);
-		// special moves
-		DoSpecials(f1, f2);
-		// end of turn maintainence
-		f1.Tick();
-		f2.Tick();
+		return mf->IsAlive();
+	};
+
+	while (
+		std::any_of(t1.begin(), t1.end(), alive_pred) 
+		&& std::any_of(t2.begin(), t2.end(), alive_pred)
+	)
+	{
+		// we do parition to keep live Memes always fighting live memes.
+		std::random_shuffle(t1.begin(), t1.end());
+		std::partition(t1.begin(), t1.end(), alive_pred);
+		std::random_shuffle(t2.begin(), t2.end());
+		std::partition(t2.begin(), t2.end(), alive_pred);
+
+		for (size_t i = 0; i < t1.size(); i++)
+		{
+			// trade blows
+			Engage(*t1[i], *t2[i]);
+			// special moves
+			DoSpecials(*t1[i], *t2[i]);
+			std::cout << "-------------------------------------" << std::endl;
+		}
+		std::cout << "===============================================" << std::endl;
+
+
+		for (size_t i = 0; i < t1.size(); i++)
+		{
+			// end of turn maintainence
+			t1[i]->Tick();
+			t2[i]->Tick();
+		}
+
+		std::cout << "===============================================" << std::endl;
+
 
 		std::cout << "Press any key to continue...";
 		while (!_kbhit());
@@ -197,14 +249,24 @@ int main()
 		std::cout << std::endl << std::endl;
 	}
 
-	if (f1.IsAlive())
+	if (std::any_of(t1.begin(), t1.end(), alive_pred))
 	{
-		std::cout << f1.GetName() << " is victorious!";
+		std::cout << "Team 1 is victorious!\n";
 	}
 	else
 	{
-		std::cout << f2.GetName() << " is victorious!";
+		std::cout << "Team 2 is victorious!\n";
 	}
+	
+	// big problem with this. 
+	// whos destructor is being called?
+	// Not calling destructors of our children!
+	for (size_t i = 0; i < t1.size(); ++i)
+	{
+		delete t1[i];
+		delete t2[i];
+	}
+
 	while (!_kbhit());
 	return 0;
 }

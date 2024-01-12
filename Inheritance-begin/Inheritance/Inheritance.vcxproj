@@ -119,6 +119,11 @@
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Dice.h" />
+    <ClInclude Include="MemeFighter.h" />
+    <ClInclude Include="Weapon.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -79,10 +79,7 @@ protected:
 	{
 		std::cout << name << " enters the ring!\n";
 	}
-	//const Attribute& GetAttributes() const
-	//{
-	//	return attr;
-	//}
+
 	int Roll(int nDice = 1) const
 	{
 		return dice.Roll(nDice);
@@ -145,6 +142,39 @@ public:
 		: MemeFighter(80, 4, 10, name, pWeapon)
 	{
 	}
+	void SpecialMove(MemeFighter& other) override
+	{
+		if (IsAlive())
+		{
+			// 1/2 chance
+			if (Roll() % 2 == 0)
+			{
+
+				attr.power = (attr.power * 69) / 42;
+				attr.hp += 10;
+				attr.speed += 3;
+
+				name = "Super " + name;
+
+				std::cout << GetName() << " rolled a special move and recieved 10 hp, 1 power, 3 speed, and the Super name\n";
+
+			}
+		}
+	}
+	~MemeStoner()
+	{
+		std::cout << "Destorying MemeStoner " << name << "\n";
+	}
+};
+
+
+class MemeCat : public MemeFighter
+{
+public:
+	MemeCat(const std::string& name, Weapon* pWeapon)
+		: MemeFighter(80, 4, 10, name, pWeapon)
+	{
+	}
 	void SpecialMove(MemeFighter&) override
 	{
 		if (IsAlive())
@@ -163,7 +193,7 @@ public:
 			}
 		}
 	}
-	~MemeStoner()
+	~MemeCat()
 	{
 		std::cout << "Destorying MemeStoner " << name << "\n";
 	}

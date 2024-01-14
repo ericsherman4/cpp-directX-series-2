@@ -3,6 +3,8 @@
 #include <conio.h>
 #include <algorithm>
 #include <typeinfo>
+#include <memory>
+
 
 #include "MemeFighter.h"
 
@@ -10,9 +12,9 @@ void TakeWeaponIfDead(MemeFighter& taker, MemeFighter& giver)
 {
 	if (taker.IsAlive() && !giver.IsAlive() && giver.HasWeapon())
 	{
-		if (giver.GetWeapon().GetRank() > taker.GetWeapon().GetRank())
+		if (giver.GetWeapon()->GetRank() > taker.GetWeapon()->GetRank())
 		{
-			std::cout << taker.GetName() << " takes the " << giver.GetWeapon().GetName()
+			std::cout << taker.GetName() << " takes the " << giver.GetWeapon()->GetName()
 				<< " from " << giver.GetName() << "'s still-cooling corpse." << std::endl;
 			taker.GiveWeapon(giver.PilferWeapon());
 		}
@@ -64,22 +66,19 @@ bool AreSameType(MemeFighter& f1, MemeFighter& f2)
 
 int main()
 {
-	std::vector<MemeFighter*> t1 = {
-		new MemeFrog("Dat Boi",new Fists),
-		new MemeStoner("Good Guy Greg",new Bat),
-		new MemeCat("Haz Cheeseburger",new Knife),
-	};
-	std::vector<MemeFighter*> t2 = {
-		new MemeCat("NEDM",new Fists),
-		new MemeStoner("Scumbag Steve",new Bat),
-		new MemeFrog("Pepe",new Knife)
-	};
+	std::vector<std::unique_ptr<MemeFighter>> t1;
+	t1.push_back(std::make_unique<MemeFrog>("Dat Boi", new Fists));
+	t1.push_back(std::make_unique<MemeStoner>("Good Guy Greg", new Bat));
+	t1.push_back(std::make_unique<MemeCat>("Haz Cheeseburger", new Knife));
 
-	std::cout << std::boolalpha << AreSameType(*t1[0], *t2[2]) << std::endl;
-	std::cout << std::boolalpha << AreSameType(*t1[0], *t2[0]) << std::endl;
-	std::cout << typeid(*t2[1]).name() << std::endl;
+	std::vector<std::unique_ptr<MemeFighter>> t2;
+	t2.push_back(std::make_unique<MemeCat>("NEDM", new Fists));
+	t2.push_back(std::make_unique<MemeStoner>("Scumbag Steve", new Bat));
+	t2.push_back(std::make_unique<MemeFrog>("Pepe", new Knife));
 
-	const auto alive_pred = [](MemeFighter* pf) { return pf->IsAlive(); };
+	const auto alive_pred = [](const std::unique_ptr<MemeFighter>& pf) 
+	{ return pf->IsAlive(); };
+
 	while (
 		std::any_of(t1.begin(), t1.end(), alive_pred) &&
 		std::any_of(t2.begin(), t2.end(), alive_pred))
@@ -117,12 +116,6 @@ int main()
 	else
 	{
 		std::cout << "Team TWO is victorious!" << std::endl;
-	}
-
-	for (size_t i = 0; i < t1.size(); i++)
-	{
-		delete t1[i];
-		delete t2[i];
 	}
 
 	while (!_kbhit());

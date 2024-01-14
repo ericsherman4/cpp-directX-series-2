@@ -40,35 +40,29 @@ public:
 		}
 	}
 	virtual void SpecialMove(MemeFighter&) = 0;
-	virtual ~MemeFighter()
+	virtual ~MemeFighter() = default;
+	void GiveWeapon(std::unique_ptr<Weapon> pNewWeapon)
 	{
-		delete pWeapon;
+		pWeapon = std::move(pNewWeapon);
 	}
-	void GiveWeapon(Weapon* pNewWeapon)
+	std::unique_ptr<Weapon> PilferWeapon()
 	{
-		delete pWeapon;
-		pWeapon = pNewWeapon;
-	}
-	Weapon* PilferWeapon()
-	{
-		auto pWep = pWeapon;
-		pWeapon = nullptr;
-		return pWep;
+		return std::move(pWeapon);
 	}
 	bool HasWeapon() const
 	{
 		return pWeapon != nullptr;
 	}
-	const Weapon& GetWeapon() const
+	const std::unique_ptr<Weapon>& GetWeapon() const
 	{
-		return *pWeapon;
+		return pWeapon;
 	}
 protected:
-	MemeFighter(const std::string& name, int hp, int speed, int power, Weapon* pWeapon = nullptr)
+	MemeFighter(const std::string& name, int hp, int speed, int power, std::unique_ptr<Weapon> pWeapon)
 		:
 		name(name),
 		attr({ hp,speed,power }),
-		pWeapon(pWeapon)
+		pWeapon(std::move(pWeapon))
 	{
 		std::cout << name << " enters the ring!" << std::endl;
 	}
@@ -89,16 +83,16 @@ protected:
 	Attributes attr;
 	std::string name;
 private:
-	Weapon* pWeapon = nullptr;
+	std::unique_ptr<Weapon> pWeapon;
 	mutable Dice d;
 };
 
 class MemeFrog : public MemeFighter
 {
 public:
-	MemeFrog(const std::string& name, Weapon* pWeapon = nullptr)
+	MemeFrog(const std::string& name, std::unique_ptr<Weapon> pWeapon)
 		:
-		MemeFighter(name, 69, 7, 14, pWeapon)
+		MemeFighter(name, 69, 7, 14, std::move(pWeapon))
 	{}
 	void SpecialMove(MemeFighter& other) override
 	{
@@ -137,9 +131,9 @@ public:
 class MemeCat : public MemeFighter
 {
 public:
-	MemeCat(const std::string& name, Weapon* pWeapon = nullptr)
+	MemeCat(const std::string& name, std::unique_ptr<Weapon> pWeapon)
 		:
-		MemeFighter(name, 65, 9, 14, pWeapon)
+		MemeFighter(name, 65, 9, 14, std::move(pWeapon))
 	{}
 	void SpecialMove(MemeFighter&) override
 	{
@@ -165,9 +159,9 @@ public:
 class MemeStoner : public MemeFighter
 {
 public:
-	MemeStoner(const std::string& name, Weapon* pWeapon = nullptr)
+	MemeStoner(const std::string& name, std::unique_ptr<Weapon> pWeapon)
 		:
-		MemeFighter(name, 80, 4, 10, pWeapon)
+		MemeFighter(name, 80, 4, 10, std::move(pWeapon))
 	{}
 	void SpecialMove(MemeFighter& other) override
 	{

@@ -24,7 +24,7 @@ Surface::Surface(const std::string& filename)
     bool isflipped = height < 0;
     height = abs(height);
 
-    pPixels = new Color[width * height];
+    pPixels = std::make_unique<Color[]>(width * height);
 
     bmp_file.seekg(bmFileheader.bfOffBits);
 
@@ -70,8 +70,9 @@ Surface::Surface(const std::string& filename)
 Surface::Surface(int width_in, int height_in)
     : width(width_in)
     , height(height_in)
-    , pPixels(new Color[width* height])
+    , pPixels(std::make_unique<Color[]>(width* height))
 {
+
 }
 
 // thinking i misunderstand copy constructor.
@@ -85,11 +86,6 @@ Surface::Surface(const Surface& rhs)
     }
 }
 
-Surface::~Surface()
-{
-    delete[] pPixels;
-    pPixels = nullptr;
-}
 
 Surface& Surface::operator=(const Surface& rhs)
 {
@@ -102,12 +98,9 @@ Surface& Surface::operator=(const Surface& rhs)
     width = rhs.width;
     height = rhs.height;
 
-    // calling delete on nullptr does no action, delete performs the check
+    pPixels = std::make_unique<Color[]>(width * height);
 
-    delete[] pPixels;
-    pPixels = new Color[width * height];
-
-    for (int i{ 0 }; i < width * height; ++i)
+    for (int i = 0; i < width*height; i++)
     {
         pPixels[i] = rhs.pPixels[i];
     }

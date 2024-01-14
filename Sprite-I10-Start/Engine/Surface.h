@@ -3,6 +3,7 @@
 #include "Colors.h"
 #include <string>
 #include "Rect.h"
+#include <memory>
 
 class Surface
 {
@@ -10,7 +11,9 @@ public:
     Surface(const std::string& filename);
     Surface(int width_in, int height_in);
     Surface(const Surface& rhs);
-    ~Surface();
+    Surface(Surface&& donor) = default;
+    ~Surface() = default;
+    Surface& operator=(Surface&& donor) = default;
     Surface& operator=(const Surface& rhs);
     void PutPixel(int x, int y, Color c);
     Color GetPixel(int x, int y) const;
@@ -20,5 +23,5 @@ public:
 private:
     int width;
     int height;
-    Color* pPixels = nullptr;
+    std::unique_ptr<Color[]> pPixels;
 };

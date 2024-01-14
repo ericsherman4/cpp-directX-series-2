@@ -6,37 +6,54 @@
 #include "Weapon.h"
 
 
-
 class MemeFighter
 {
 public:
-
 	const std::string& GetName() const
 	{
 		return name;
-	}
-	int GetInitiative() const
-	{
-		const int initiative = attr.speed + Roll(2);
-		std::cout << name << " got " << initiative << " initiative.\n";
-		return initiative;
 	}
 	bool IsAlive() const
 	{
 		return attr.hp > 0;
 	}
-	void Attack(MemeFighter& target) const
+	int GetInitiative() const
 	{
-		if (IsAlive() && target.IsAlive())
+		return attr.speed + Roll(2);
+	}
+	void Attack(MemeFighter& other) const
+	{
+		if (IsAlive() && other.IsAlive())
 		{
-			std::cout << name << " attacks " << target.name << " with his " << pWeapon->GetName() << "!\n";
-			ApplyDamageTo(target, pWeapon->CalculateDamage(attr, dice));
+			std::cout << name << " attacks " << other.GetName() << " with his " << pWeapon->GetName()
+				<< "!" << std::endl;
+			ApplyDamageTo(other, pWeapon->CalculateDamage(attr, d));
 		}
 	}
-	void GiveWeapon(Weapon* pnewWeapon)
+	virtual void Tick()
+	{
+		if (IsAlive())
+		{
+			const int recovery = Roll();
+			std::cout << name << " recovers " << recovery << " HP." << std::endl;
+			attr.hp += recovery;
+		}
+	}
+	virtual void SpecialMove(MemeFighter&) = 0;
+	virtual ~MemeFighter()
 	{
 		delete pWeapon;
-		pWeapon = pnewWeapon;
+	}
+	void GiveWeapon(Weapon* pNewWeapon)
+	{
+		delete pWeapon;
+		pWeapon = pNewWeapon;
+	}
+	Weapon* PilferWeapon()
+	{
+		auto pWep = pWeapon;
+		pWeapon = nullptr;
+		return pWep;
 	}
 	bool HasWeapon() const
 	{
@@ -46,75 +63,55 @@ public:
 	{
 		return *pWeapon;
 	}
-
-	Weapon* PilferWeapon()
-	{
-		Weapon* temp = pWeapon;
-		pWeapon = nullptr;
-		return temp;
-	}
-
-	virtual void Tick()
-	{
-		if (IsAlive())
-		{
-			const int hp_gain = Roll();
-			attr.hp += hp_gain;
-			std::cout << name << " gained " << hp_gain << " HP.\n";
-		}
-	}
-	virtual void SpecialMove(MemeFighter&) = 0;
-	virtual ~MemeFighter()
-	{
-		std::cout << "Destorying MemeFighter " << name << "\n";
-		delete pWeapon;
-	}
-
 protected:
-	// I guess another way to make not being able to construct the base class is by making the constructor protected
-	MemeFighter(int hp, int speed, int power, std::string name, Weapon *pWeapon = nullptr)
-		: attr{hp,power,speed}
-		, name(name)
-		, pWeapon(pWeapon)
+	MemeFighter(const std::string& name, int hp, int speed, int power, Weapon* pWeapon = nullptr)
+		:
+		name(name),
+		attr({ hp,speed,power }),
+		pWeapon(pWeapon)
 	{
-		std::cout << name << " enters the ring!\n";
-	}
-
-	int Roll(int nDice = 1) const
-	{
-		return dice.Roll(nDice);
+		std::cout << name << " enters the ring!" << std::endl;
 	}
 	void ApplyDamageTo(MemeFighter& target, int damage) const
 	{
 		target.attr.hp -= damage;
+		std::cout << target.name << " takes " << damage << " damage." << std::endl;
+		if (!target.IsAlive())
+		{
+			std::cout << "As the life leaves " << target.name << "'s body, so does the poop." << std::endl;
+		}
 	}
-
+	int Roll(int nDice = 1) const
+	{
+		return d.Roll(nDice);
+	}
 protected:
-	Attribute attr;
+	Attributes attr;
 	std::string name;
-
 private:
-	mutable Dice dice;
 	Weapon* pWeapon = nullptr;
+	mutable Dice d;
 };
-
 
 class MemeFrog : public MemeFighter
 {
 public:
-	MemeFrog(const std::string& name, Weapon *pWeapon)
-		: MemeFighter(69, 7, 14, name, pWeapon)
+	MemeFrog(const std::string& name, Weapon* pWeapon = nullptr)
+		:
+		MemeFighter(name, 69, 7, 14, pWeapon)
+	{}
+	void SpecialMove(MemeFighter& other) override
 	{
-	}
-	void SpecialMove(MemeFighter& target) override
-	{
-		if (IsAlive() && target.IsAlive())
+		if (IsAlive() && other.IsAlive())
 		{
-			// 1/3 chance of happening, lol
-			if (Roll(1) < 3)
+			if (Roll() > 4)
 			{
-				std::cout << GetName() << " did a special move on " << target.GetName() << ".\n";
-				ApplyDamageTo(target, 20 + Roll(3));
+				std::cout << GetName() << " attacks " << other.GetName() << " with a rainbow beam!" << std::endl;
+				ApplyDamageTo(other, Roll(3) + 20);
+			}
+			else
+			{
+				std::cout << GetName() << " falls off his unicycle." << std::endl;
 			}
 		}
 	}
@@ -122,79 +119,88 @@ public:
 	{
 		if (IsAlive())
 		{
-			std::cout << GetName() << " got some self damage.\n";
-			ApplyDamageTo(*this, Roll()); //apply damage to self.
+			std::cout << GetName() << " is hurt by the bad AIDS!" << std::endl;
+			ApplyDamageTo(*this, Roll());
 			MemeFighter::Tick();
-
 		}
 	}
-	~MemeFrog()
+	void Foo()
 	{
-		std::cout << "Destorying MemeFrog " << name << "\n";
+		std::cout << "Non-virtual MemeFrog function call." << std::endl;
+	}
+	~MemeFrog() override
+	{
+		std::cout << "Destroying MemeFrog '" << name << "'!" << std::endl;
 	}
 };
-
-
-class MemeStoner : public MemeFighter
-{
-public:
-	MemeStoner(const std::string& name, Weapon *pWeapon)
-		: MemeFighter(80, 4, 10, name, pWeapon)
-	{
-	}
-	void SpecialMove(MemeFighter& other) override
-	{
-		if (IsAlive())
-		{
-			// 1/2 chance
-			if (Roll() % 2 == 0)
-			{
-
-				attr.power = (attr.power * 69) / 42;
-				attr.hp += 10;
-				attr.speed += 3;
-
-				name = "Super " + name;
-
-				std::cout << GetName() << " rolled a special move and recieved 10 hp, 1 power, 3 speed, and the Super name\n";
-
-			}
-		}
-	}
-	~MemeStoner()
-	{
-		std::cout << "Destorying MemeStoner " << name << "\n";
-	}
-};
-
 
 class MemeCat : public MemeFighter
 {
 public:
-	MemeCat(const std::string& name, Weapon* pWeapon)
-		: MemeFighter(80, 4, 10, name, pWeapon)
-	{
-	}
+	MemeCat(const std::string& name, Weapon* pWeapon = nullptr)
+		:
+		MemeFighter(name, 65, 9, 14, pWeapon)
+	{}
 	void SpecialMove(MemeFighter&) override
 	{
 		if (IsAlive())
 		{
-			// 1/2 chance
-			if (Roll() % 2 == 0)
+			if (Roll() > 2)
 			{
-				attr.power = (attr.power * 69) / 42;
-				attr.hp += 10;
-				attr.speed += 3;
-
-				name = "Super " + name;
-
-				std::cout << GetName() << " rolled a special move and recieved 10 hp, 1 power, 3 speed, and the Super name\n";
-
+				std::cout << GetName() << " eats a cheeseburger and gains 20 HP." << std::endl;
+				attr.hp += 20;
+			}
+			else
+			{
+				std::cout << GetName() << " meows demurely." << std::endl;
 			}
 		}
 	}
-	~MemeCat()
+	~MemeCat() override
 	{
-		std::cout << "Destorying MemeStoner " << name << "\n";
+		std::cout << "Destroying MemeCat '" << name << "'!" << std::endl;
+	}
+};
+
+class MemeStoner : public MemeFighter
+{
+public:
+	MemeStoner(const std::string& name, Weapon* pWeapon = nullptr)
+		:
+		MemeFighter(name, 80, 4, 10, pWeapon)
+	{}
+	void SpecialMove(MemeFighter& other) override
+	{
+		if (IsAlive())
+		{
+			if (Roll() > 3)
+			{
+				if (typeid(MemeFrog) == typeid(other))
+				{
+					std::cout << GetName() + " says: 'Oh sweet dude, it's a cool little froggie bro.'\n";
+				}
+				else if (typeid(MemeStoner) == typeid(other))
+				{
+					std::cout << GetName() + " says: 'Duuuuuude.'\n";
+				}
+				else if (typeid(MemeCat) == typeid(other))
+				{
+					std::cout << GetName() + " says: 'Hey kitty bro, can I pet you?'\n";
+				}
+				std::cout << GetName() << " smokes the dank sticky icky, becoming " << "Super " << GetName() << std::endl;
+				name = "Super " + name;
+				attr.speed += 3;
+				attr.power = (attr.power * 69) / 42;
+				attr.hp += 10;
+			}
+			else
+			{
+				std::cout << GetName() << " spaces out." << std::endl;
+			}
+		}
+	}
+	~MemeStoner() override
+	{
+		std::cout << "Destroying MemeStoner '" << name << "'!" << std::endl;
 	}
 };

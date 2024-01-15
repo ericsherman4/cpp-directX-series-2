@@ -1,5 +1,47 @@
 #include <iostream>
+#include <vector>
 
+
+class Thing
+{
+public:
+    Thing()
+    {
+        std::cout << "Calling constructor" << std::endl;
+    }
+    Thing(Thing&& t) noexcept
+    {
+        std::cout << "Calling move constructor" << std::endl;
+    }
+    Thing(const Thing& t)
+    {
+        std::cout << "Calling copy constructor" << std::endl;
+    }
+    ~Thing()
+    {
+        std::cout << "Calling destructor" << std::endl;
+    }
+};
+
+int main()
+{
+    std::vector<Thing> t;
+    t.emplace_back();
+    std::cout << "-------" << std::endl;
+    t.emplace_back();
+    std::cout << "-------" << std::endl;
+    t.emplace_back();
+
+
+    std::cin.get();
+    return 0;
+}
+
+
+
+
+
+#if 0
 int sum(int a, int b)
 {
     if (a == 77)
@@ -55,3 +97,4 @@ int main()
     std::cin.get();
     return 0;
 }
+#endif
